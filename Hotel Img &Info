@@ -1,0 +1,72 @@
+from bs4 import BeautifulSoup
+import requests
+import urllib.request
+
+
+#Getting some info and pics from a hotel booking site.
+headers= {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36'}
+site="https://www.booking.com/searchresults.html?aid=356980;label=gog235jc-1DCAsofUIRYmVpbW9uZGV1LWJheW1vbmRIM1gDaH2IAQGYATG4ARfIAQzYAQPoAQH4AQKIAgGoAgO4AoK6l_0FwAIB0gIkMzE2ZjZhMzctMWZkZC00OTBiLTg0NGUtY2RiZDZjZGQ0MzUw2AIE4AIB;sid=c8f831af24d5a1f86eac3697d590b6fa;dest_id=-666610;dest_type=city;highlighted_hotels=913677;nflt=ht_id%3D224%3Bht_id%3D219%3Bht_id%3D208%3Bht_id%3D232%3Bht_id%3D209%3Bht_id%3D210%3Bht_id%3D223%3Bht_id%3D216%3Bht_id%3D222%3Bht_id%3D201%3Bht_id%3D230%3Bht_id%3D213%3Bht_id%3D228%3Bht_id%3D212%3Bht_id%3D227%3Bht_id%3D220%3Bht_id%3D215%3Bht_id%3D229%3Bht_id%3D214;bhc_from_index=1;bhc_from_index=1"
+res = requests.get(site,headers=headers)
+html1 = res.text
+soup1 = BeautifulSoup(html1, 'html.parser')
+#box collects hyperlink to each page.
+box=[]
+#selector sellects img (profile pic).
+selector = soup1.select('div nav li ul li a')
+
+
+#offset is where a page breaks.
+for s in range(len(selector)):
+    if "offset" in str(selector[s]):
+        box.append(selector[s].get('href'))
+
+
+#For each page, if something is recently booked, we get name, score and booked number for the place.
+def forEach(soup):
+    each= soup.find_all('div',class_="sr_item_content sr_item_content_slider_wrapper")
+
+    for x in range(len(each)):
+        if (each[x].find('div',class_='rollover-s1 lastbooking')):
+            name=each[x].find('span',class_="sr-hotel__name").get_text()
+            recommends=each[x].find('div',class_='bui-review-score__badge').get_text()
+            booked=each[x].find('div',class_='rollover-s1 lastbooking').get_text()
+            print(name+recommends+booked)
+    print()
+
+
+#global is the picure number counter when download.
+global o
+o =1
+#Get hotel profile picutres from the website.
+def getImg(soup):
+    img=soup.find_all('img',class_="hotel_image")
+    imglist=[]
+    global o
+
+    for x in range(len(img)):
+        imglist.append(img[x].attrs['src'])
+
+    for x in range(len(imglist)):
+        try:
+            imgPath=imglist[x]
+            #Download photos. File name is the counting number.
+            urllib.request.urlretrieve(imgPath,"C:\\Users\\SAMSUNG\\Desktop\\test\\"+str(o)+".png")
+            o+=1
+        except Exception as ex:
+            template="An exception of type {0} occured. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print(message)
+
+
+for b in range(len(box)):
+    print("page",b+1)
+    fullpath=site+box[b]
+    #Print url of each page.
+    print(fullpath+"\n\n")
+    page = requests.get(fullpath,headers=headers)
+    html2 = page.text
+    #Recently booked hotel's name, score and booked number.
+    soup2 = BeautifulSoup(html2,'html.parser')
+    forEach(soup2)
+    #Save hotel proflie pictures.
+    getImg(soup2)
