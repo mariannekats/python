@@ -1,0 +1,160 @@
+import random;
+from datetime import date
+
+
+#the winning number
+def com_lotto():
+    jackpot = list();
+
+    while(True):
+        jack = random.randint(1,50)
+        #no overlap
+        if (jack not in jackpot):
+            jackpot.append(jack)
+            if (len(jackpot)==6):
+                jackpot.sort()
+                break;
+
+    return jackpot
+
+
+def money_info(money, ticket):
+    print('='*30)   
+    print("Recieved: ${:0.2f}".format(money))
+
+    money_cp=money
+    money_cp-=ticket*10
+    if(money_cp<0):
+        ticket=int(money/10)
+        change=money-ticket*10
+        print("Change: ${:0.2f}".format(change))
+        print()
+        print('"You have a problem, my friend."')  
+        print("The seller gave you {} tickets.".format(ticket))
+        print()
+        return ticket
+    else:
+        print("Change: ${:0.2f}".format(money_cp))
+        return ticket
+
+
+#one ticket
+def lotto():
+    game = []
+    while(True):
+        value=random.randint(1,50)
+        if(value not in game):
+            game.append(value)
+            if(len(game)==6):
+                break;
+    game.sort()
+    return game
+
+
+#all your tickets
+def lottoset(ticket):
+    box = list()
+    while(ticket>0):
+        box.append(lotto());
+        ticket-=1
+    return box
+
+
+def print_lotto(box):
+    print()
+    print('-'*25)
+    today = date.today()
+    print(today)
+    print('-'*25)
+    for i in box:
+        print(i)
+    print('-'*25)
+
+
+def did_i_win_Jack(box, jackpot):
+    #box=my set of lotto tickets, jackpot=jackpot number 
+    print()
+
+    if (jackpot in box):
+        print("$$$$ JACKPOT $$$$")
+        print()
+    
+
+#getting some numbers right
+def did_i_win_any(box,jackpot):
+
+    count=0
+    #try winning some small prizes
+    prize=False
+
+    for  ticket in box:
+        #each number in one ticket
+        for number in ticket:
+            if number in jackpot:
+                count+=1
+        if (count==5):
+            print()
+            print("You've WON the 2ND PRIZE\nfor getting 5 numbers correct.")
+            print(ticket)
+            print("*"*30)
+            prize = True
+        elif (count==4):
+            print()
+            print("You've won the 3RD PRIZE\nfor getting 4 numbers correct.")
+            print(ticket)
+            print("*"*30)
+            prize = True
+        elif (count==3):
+            print()
+            print(" >> You've won the 4th prize\nfor getting 3 numbers correct.")
+            print(ticket)
+            print("*"*30)
+            prize = True
+    
+        count = 0
+
+    if (prize==False):
+        print("Better luck next time.")
+        print()
+
+
+def correct_counter(box,jackpot):
+    print()
+    print("Winning Numbers Counter")
+    print(jackpot)
+    print('-'*30)
+
+    count=0
+
+    for  ticket in box:
+        for number in ticket:
+            if number in jackpot:
+                count+=1
+        print(ticket, "[",count,"]")
+        count = 0
+
+print('"How much $ do have $ ?"')
+money = float(input())
+if (money==0):
+    print()
+    print('"Go home."')
+else:
+    print()
+    print('"Tickets are sold $10 each.')
+    print('How many tickets do you want?"')
+    purchase = int(input())
+    print()
+    print()
+    ticket =money_info(money,purchase)
+    if (ticket==0):
+        print()
+        print('"I have no time for this bullshit!"')
+    else:
+        box=lottoset(ticket)
+        print_lotto(box)
+        com = com_lotto()
+        did_i_win_Jack(box,com)
+        correct_counter(box,com)
+        print()
+        print()
+        did_i_win_any(box,com)
