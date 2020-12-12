@@ -1,0 +1,49 @@
+import hashlib
+import requests
+from bs4 import BeautifulSoup
+   
+headers ={"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36"}
+#a choice of a free game download website
+url="http://www.download-free-games.com"
+res1 = requests.get(url, headers=headers)
+html=res1.text
+soup=BeautifulSoup(html,'html.parser')
+box = soup.find_all('div',class_="module row")
+#selector collects download links to the games (of the chosen category)
+selector=[]
+#count game number
+counter = 1
+
+
+def shaEncrypt(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+for x in range(len(box)):
+   tmp=box[x].select('h4 a') #result set
+   for t in range(len(tmp)):
+       x=url+tmp[t].get('href') #get game links
+       selector.append(x)
+
+
+for s in selector:
+    res2 = requests.get(s,headers=headers)
+    #get binary data of the game (temporary download via content request)
+    tmpFile=res2.content
+    #sha256 hash of the game file
+    shaFile=shaEncrypt(tmpFile)
+    print(counter)
+    counter+=1
+    print(shaFile)
+
+
+'''
+# For Virus Total API
+api_key="put in your api_key"
+
+def total(shaFile):
+    site = 'https://www.virustotal.com/vtapi/v2/file/report'
+    params = {'apikey': api_key, 'resource': suspect}
+    response = requests.get(site, params=params)
+    print(response.json())
+'''
