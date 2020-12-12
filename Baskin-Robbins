@@ -1,0 +1,288 @@
+import random
+
+#Rule: Number starts from 1 and ends at 31. Each takes turn in calling consecutive numbers. Who gets 31 loses. One call maximum is three.
+
+#Starting number 1
+x = 1
+
+#If turn is 1, user goes first. If 2, computer first. Who goes first gets decided randomly.
+turn = 0
+
+print("*"*52)
+print("\t\t Play Baskin Baby!")
+print()
+print("\tWe'll take turns in calling numbers.")
+print("\tMax each can call is three. No skip.")
+print()
+print("\t    WHO ENDS UP ON [31] LOSES.")
+print("*"*52)
+print()
+
+
+
+#Decides who goes first.
+def whoGoesFirst():
+    choice = random.randint(1,2)
+    if choice==1:
+        print(" -> User goes first")
+        print()
+        print()
+        return 1
+    else:
+        print(" -> Computer goes first")
+        print()
+        print()
+        return 2
+
+
+
+#Computer plays.
+def comTurn():
+    print(">> this is computer")
+    print()
+    global x
+    times = random.randint(1,3)
+    for i in range(times):
+        if i==times-1:
+            #Mark the last number
+            print(f'[{x}]')
+        else:
+            print("",x)
+        #if computer ends at 31
+        if x == 31:
+            print()
+            print("Computer lost. Congrats, you WON! :-D !!")
+            x+=1
+            return
+        x+=1
+    print()    
+    print(f">> Computer ended on [{x-1}].")
+    print()
+    print("-"*52)
+    print()
+
+
+
+#User turn
+def userPlay():
+    times = int(input("How many goes? "))
+    while (times<1 or times>3):
+        times = int(input("Must be 1/2/3: "))
+    print()
+    return times
+
+
+
+#User Lost Message 
+def killUser():
+    global x
+    print()
+    print(">> user, you have no choice")
+    print()
+    print()
+    print("\t X X X   X X")
+    print("\tX     X  X X")
+    print("\t     X     X")
+    print("\t  X X      X")
+    print("\t      X    X")
+    print("\t      X    X")
+    print("\tX X X X  X X X")
+    print()
+    print()
+    print(">> user, you are lost.")
+    print()
+    print()
+    print("HAHA YOU LOST!!!:-> SUCKER!!")
+    x=32
+    return
+
+
+         
+#User Won Message
+def userWon():
+    print()
+    print("\t ★★★   ★★")
+    print("\t★    ★    ★")
+    print("\t     ★     ★")
+    print("\t  ★★      ★")
+    print("\t      ★    ★")
+    print("\t      ★    ★")
+    print("\t★★★★  ★★★")
+
+
+
+#If com calculates it's gonna lose, it might kill itself before you have the chance.  
+def comSuicide():
+    global x
+    print(">> Computer says: I know 27 is the death number.")
+    print()
+    print(x)
+    x += 1
+    print(x)
+    x += 1
+    print(x)
+    x += 1
+    print()
+    print()
+    print(">> Computer says: You call 30.")
+    print("   I'm killing myself. YOU WON.")
+    userWon()
+
+
+
+#Computer knows user's about to lose, so it teases the user.
+def toyWithUser():
+    global x
+    turn =1
+    while(x<31):
+        if turn ==1:
+            times=userPlay()
+            print(">> This is user")
+            while(times>0):
+                print(x)
+                if x==31:
+                    userLost()
+                    return;
+                x+=1
+                times-=1
+            print(f">> User ended on {x-1}")
+            print()
+            print("-"*52)
+            print()
+            turn=2             
+        elif turn ==2:
+            comHardBall()
+            turn=1
+
+
+
+#Computer plays smart to evade number 27 and win. 27 leads to 31.   
+def comHardBall():
+    print(">> This is computer")
+    print()
+    global x
+    #Who gets 27 loses.
+ 
+    def messageOver27(x):
+        print()
+        print(f">> Computer ended on [{x}].")
+        print()
+        print("-"*52)
+        
+    #Escape 27 (when com lands on 24/25/26)    
+    if x==24:
+        print("",24)
+        print("",25)
+        print("[26]")
+        print("-"*52)
+        print()
+        x=27
+        
+    if x==25:
+        print("",x)
+        x+=1
+        print(f'[{x}]')
+        x+=1
+        print("-"*52)
+        print()
+        toyWithUser()
+        
+    if x==26:
+        print(f'[{x}]')
+        x+=1
+        print("-"*52)
+        print()
+        toyWithUser()
+
+    #Make sure computer doesn't do random stupid shit. It aims to win.    
+    if x==28:
+        print("",x)
+        x+=1
+        print("",x)
+        x+=1
+        print(f'[{x}]')
+        x+=1
+        messageOver27(x-1)
+        killUser()
+        return
+    
+    elif x==29:
+        print("",x)
+        x+=1
+        print(f'[{x}]')
+        x+=1
+        messageOver27(x-1)
+        killUser()
+        return
+    
+    elif x==30:
+        print(f'[{x}]')
+        messageOver27(x)
+        x+=1
+        killUser()
+        return
+
+
+
+#When computer gets 27, it knows it's about to lose. Com could be a sour loser (or it chooses to behave).      
+def comHasPersonality():
+    gentleOrBitchy = random.randint(1,2)
+    if gentleOrBitchy==1:
+        #bitch
+        comSuicide()
+        return 1
+    else:
+        #gentle
+        return 2
+
+    
+
+#Each takes turn.    
+def play(turn):
+    global x
+    
+    if x>31:
+        return
+    
+    while(x<=31):
+        if turn ==1:
+            print(">> This is user.")
+            print()         
+            times = userPlay()
+            while(times>0):
+                print(x)
+                x+=1
+                times-=1
+            print(">> User ended.")
+            print()
+            print("-"*52)
+            print()
+            turn=2
+            
+        elif turn ==2:        
+            if x==27:
+                #Computer thinks: Eff to the ff! Damn, I've got the death number 27.
+                personality = comHasPersonality()
+                if personality ==1:
+                    return
+                elif personality ==2:
+                    comTurn()    
+              
+            elif x==31:
+                print(">> Computer says:I'm dead. YOU WON.")
+                userWon()
+                x+=1
+                return
+            
+            elif x>=24:
+                comHardBall()         
+
+
+            else:
+                comTurn()    
+            turn=1
+
+
+#starts the game
+turn = whoGoesFirst()
+play(turn)
